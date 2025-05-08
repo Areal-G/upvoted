@@ -1,17 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Upvoted: collect feedback, ship what matters
 
-## Getting Started
+## why
 
-First, run the development server:
+you want to know what your users actually want. upvoted gives your product a public board where users post ideas and vote on them, so you get a ranked list of requests and a roadmap that shows customers you listened.
+
+* users suggest ideas, upvote and comment
+* you move ideas through open → planned → in progress → done (or rejected)
+* planned, in-progress and done ideas show up on a public roadmap
+* boards live at `/b/<slug>`
+
+it's one next.js app with server actions, prisma and postgres.
+
+## setup
+
+you need node 20+ and a postgres database.
 
 ```bash
+git clone <your-fork-url> upvoted
+cd upvoted
+cp .env.example .env
+npm install
+npx prisma migrate deploy
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* set `DATABASE_URL` and `AUTH_SECRET` in `.env`
+* prisma reads `.env`, not `.env.local`
+* google sign-in is optional
