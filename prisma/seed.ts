@@ -63,6 +63,49 @@ async function main() {
   }
 
   console.warn(`Seeded board /b/${board.slug} with ${samplePosts.length} posts`);
+
+  const createdPosts = await db.post.findMany({
+    where: { boardId: board.id },
+    select: { id: true },
+  });
+
+  const voters = await Promise.all(
+    Array.from({ length: 8 }).map((_, i) =>
+      db.user.upsert({
+        where: { email: `voter${i}@upvoted.app` },
+        update: {},
+        create: { email: `voter${i}@upvoted.app`, name: `Voter ${i + 1}` },
+      }),
+    ),
+  );
+
+  for (const post of createdPosts) {
+    const voteCount = Math.floor(Math.random() * voters.length);
+    for (let i = 0; i < voteCount; i++) {
+      const voter = voters[i];
+      if (!voter) continue;
+      await db.vote.upsert({
+        where: { postId_userId: { postId: post.id, userId: voter.id } },
+        update: {},
+        create: { postId: post.id, userId: voter.id },
+      });
+    }
+
+    const commentCount = Math.floor(Math.random() * 3);
+    for (let i = 0; i < commentCount; i++) {
+      const voter = voters[i];
+      if (!voter) continue;
+      await db.comment.create({
+        data: {
+          postId: post.id,
+          authorId: voter.id,
+          content: `Great idea. This would really improve my workflow.`,
+        },
+      });
+    }
+  }
+
+  console.warn(`Seeded ${voters.length} voters with random votes and comments`);
 }
 
 main()
