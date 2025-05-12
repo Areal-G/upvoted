@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getBoardBySlug } from "@/server/queries/boards";
@@ -49,6 +50,12 @@ export default async function PublicBoardPage({ params, searchParams }: Props) {
         <div>
           <h1 className="text-3xl font-bold">{board.name}</h1>
           {board.description && <p className="text-muted-foreground mt-2">{board.description}</p>}
+          <Link
+            href={`/b/${slug}/roadmap`}
+            className="text-muted-foreground hover:text-foreground mt-2 inline-block text-sm underline-offset-4 hover:underline"
+          >
+            View roadmap →
+          </Link>
         </div>
         <CreatePostDialog boardSlug={slug} authenticated={!!session?.user} />
       </header>

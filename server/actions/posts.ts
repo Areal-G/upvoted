@@ -84,6 +84,7 @@ export async function changeStatus(
   });
 
   revalidatePath(`/b/${post.board.slug}`);
+  revalidatePath(`/b/${post.board.slug}/roadmap`);
   revalidatePath(`/posts`);
   return { ok: true, data: undefined };
 }
