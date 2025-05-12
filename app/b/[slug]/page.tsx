@@ -64,7 +64,7 @@ export default async function PublicBoardPage({ params, searchParams }: Props) {
       ) : (
         <div className="space-y-3">
           {posts.map((post: PublicPost) => (
-            <PostCard key={post.id} post={post} slug={slug} />
+            <PostCard key={post.id} post={post} slug={slug} authenticated={!!session?.user} />
           ))}
         </div>
       )}

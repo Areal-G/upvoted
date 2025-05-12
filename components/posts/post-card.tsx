@@ -1,27 +1,22 @@
 import Link from "next/link";
-import { MessageSquare, ChevronUp } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { StatusBadge } from "./status-badge";
+import { VoteButton } from "./vote-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
 import type { PublicPost } from "@/server/queries/posts";
 
-type Props = { post: PublicPost; slug: string };
+type Props = { post: PublicPost; slug: string; authenticated: boolean };
 
-export function PostCard({ post, slug }: Props) {
+export function PostCard({ post, slug, authenticated }: Props) {
   return (
     <article className="bg-card hover:border-foreground/20 flex gap-4 rounded-lg border p-4 transition">
-      <div
-        className={cn(
-          "flex flex-col items-center gap-0.5 rounded-md border px-3 py-2 text-sm",
-          post.hasVoted
-            ? "border-primary bg-primary/10 text-primary"
-            : "border-border text-muted-foreground",
-        )}
-        aria-hidden
-      >
-        <ChevronUp className="h-4 w-4" />
-        <span className="font-medium tabular-nums">{post.voteCount}</span>
-      </div>
+      <VoteButton
+        postId={post.id}
+        voteCount={post.voteCount}
+        hasVoted={post.hasVoted}
+        authenticated={authenticated}
+        boardSlug={slug}
+      />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
