@@ -12,6 +12,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
@@ -52,6 +53,10 @@
     "prettier-plugin-tailwindcss": "^0.8.0",
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
+    "tsx": "^4.22.1",
     "typescript": "^6.0.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }
