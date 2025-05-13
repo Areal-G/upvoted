@@ -24,7 +24,7 @@ export default function Home() {
 
       <main>
         <section className="mx-auto max-w-3xl px-6 py-24 text-center">
-          <p className="text-primary text-sm font-medium">Open source · Built with Next.js 15</p>
+          <p className="text-primary text-sm font-medium">Open source · Built with Next.js 16</p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">
             Ship what your users actually want.
           </h1>
