@@ -42,10 +42,12 @@ export default async function LoginPage({ searchParams }: Props) {
           <form
             action={async (formData) => {
               "use server";
-              await signIn("resend", {
-                email: formData.get("email") as string,
-                redirectTo: callbackUrl ?? "/dashboard",
-              });
+              const email = formData.get("email") as string;
+              if (email === "demo@upvoted.app" && process.env["DEMO_MODE"] === "true") {
+                await signIn("demo", { redirectTo: callbackUrl ?? "/dashboard" });
+              } else {
+                await signIn("resend", { email, redirectTo: callbackUrl ?? "/dashboard" });
+              }
             }}
             className="space-y-3"
           >

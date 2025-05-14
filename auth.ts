@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Resend from "next-auth/providers/resend";
+import Credentials from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
 import authConfig from "./auth.config";
 import { slugify } from "@/lib/slug";
@@ -43,5 +44,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   ...authConfig,
-  providers: [...authConfig.providers, Resend({ from: process.env["EMAIL_FROM"] })],
+  providers: [
+    ...authConfig.providers,
+    Resend({ from: process.env["EMAIL_FROM"] }),
+    Credentials({
+      id: "demo",
+      credentials: {},
+      async authorize() {
+        if (process.env["DEMO_MODE"] !== "true") return null;
+        const demoEmail = "demo@upvoted.app";
+        let user = await db.user.findUnique({ where: { email: demoEmail } });
+        if (!user) {
+          user = await db.user.create({
+            data: { email: demoEmail, name: "Demo User", emailVerified: new Date() },
+          });
+          await db.board.create({
+            data: { slug: "demo", name: "Demo board", description: "Try Upvoted with a pre-seeded board.", ownerId: user.id },
+          });
+        }
+        return user;
+      },
+    }),
+  ],
 });
