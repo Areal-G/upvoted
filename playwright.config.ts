@@ -23,7 +23,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 
   webServer: {
-    command: "npm run start:e2e",
+    command: process.env["CI"] ? "next start" : "npm run start:e2e",
     url: baseURL,
     reuseExistingServer: !process.env["CI"],
     timeout: 120_000,
