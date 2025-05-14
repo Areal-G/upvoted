@@ -55,7 +55,7 @@ export function VoteButton({
       onClick={handleClick}
       disabled={isPending}
       aria-pressed={optimistic.hasVoted}
-      aria-label={optimistic.hasVoted ? "Remove vote" : "Vote"}
+      aria-label={size === "md" && optimistic.hasVoted ? "Remove vote" : "Vote"}
       className={cn(
         "flex flex-col items-center gap-0.5 rounded-md border transition",
         size === "sm" ? "px-3 py-2 text-sm" : "px-4 py-3 text-base",

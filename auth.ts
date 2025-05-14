@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     ...authConfig.providers,
-    Resend({ from: process.env["EMAIL_FROM"] }),
+    Resend({ from: process.env["EMAIL_FROM"] }), // Resend needs PrismaAdapter — kept here only, not in auth.config
     Credentials({
       id: "demo",
       credentials: {},
