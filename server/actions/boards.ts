@@ -18,7 +18,7 @@ const RESERVED_SLUGS = new Set([
   "settings",
   "posts",
   "admin",
-  "verify-request",
+  "signup",
 ]);
 
 export async function updateBoard(

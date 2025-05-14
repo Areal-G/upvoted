@@ -38,8 +38,13 @@ export function PostFilters() {
       className="flex flex-wrap items-center justify-between gap-3"
       data-pending={isPending ? "" : undefined}
     >
-      <Tabs value={currentStatus} onValueChange={(v) => setParam("status", v)}>
-        <TabsList>
+      {/* Scrolls sideways on phones instead of cutting off the last tabs */}
+      <Tabs
+        value={currentStatus}
+        onValueChange={(v) => setParam("status", v)}
+        className="max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <TabsList className="w-max">
           <TabsTrigger value="all">All</TabsTrigger>
           {STATUS_VALUES.map((s) => (
             <TabsTrigger key={s} value={s}>
@@ -51,7 +56,7 @@ export function PostFilters() {
 
       <Select value={currentSort} onValueChange={(v) => setParam("sort", v)}>
         <SelectTrigger className="w-36">
-          <SelectValue />
+          <SelectValue>{currentSort === "top" ? "Most voted" : "Newest"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="new">Newest</SelectItem>

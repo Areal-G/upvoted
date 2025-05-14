@@ -1,10 +1,13 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import Resend from "next-auth/providers/resend";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
 import authConfig from "./auth.config";
-import { slugify } from "@/lib/slug";
+import { createDefaultBoard } from "@/lib/boards";
+import { verifyPassword } from "@/lib/password";
+import { signInSchema } from "@/lib/validators/auth";
+import { DEMO_EMAIL } from "@/lib/demo/data";
+import { resetDemoWorkspace } from "@/lib/demo/reset";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -22,45 +25,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    // Google sign-ups get their board here; password sign-ups create it in signUp()
     async createUser({ user }) {
       if (!user.id || !user.email) return;
-
-      const base = slugify(user.name ?? user.email.split("@")[0] ?? "board");
-      let slug = base || "board";
-      let suffix = 0;
-
-      while (await db.board.findUnique({ where: { slug } })) {
-        suffix += 1;
-        slug = `${base}-${suffix}`;
-      }
-
-      await db.board.create({
-        data: {
-          slug,
-          name: user.name ? `${user.name}'s board` : "My board",
-          ownerId: user.id,
-        },
-      });
+      await createDefaultBoard(db, { id: user.id, name: user.name, email: user.email });
     },
   },
   ...authConfig,
   providers: [
     ...authConfig.providers,
-    Resend({ from: process.env["EMAIL_FROM"] }), // Resend needs PrismaAdapter — kept here only, not in auth.config
+    Credentials({
+      id: "password",
+      credentials: { identifier: {}, password: {} },
+      async authorize(raw) {
+        const parsed = signInSchema.safeParse(raw);
+        if (!parsed.success) return null;
+        const { identifier, password } = parsed.data;
+
+        const user = await db.user.findFirst({
+          where: { OR: [{ email: identifier }, { username: identifier }] },
+        });
+        if (!user?.passwordHash) return null;
+        if (!(await verifyPassword(password, user.passwordHash))) return null;
+
+        return { id: user.id, email: user.email, name: user.name ?? user.username };
+      },
+    }),
     Credentials({
       id: "demo",
       credentials: {},
       async authorize() {
         if (process.env["DEMO_MODE"] !== "true") return null;
-        const demoEmail = "demo@upvoted.app";
-        let user = await db.user.findUnique({ where: { email: demoEmail } });
+        let user = await db.user.findUnique({ where: { email: DEMO_EMAIL } });
         if (!user) {
-          user = await db.user.create({
-            data: { email: demoEmail, name: "Demo User", emailVerified: new Date() },
-          });
-          await db.board.create({
-            data: { slug: "demo", name: "Demo board", description: "Try Upvoted with a pre-seeded board.", ownerId: user.id },
-          });
+          await resetDemoWorkspace(db);
+          user = await db.user.findUnique({ where: { email: DEMO_EMAIL } });
         }
         return user;
       },

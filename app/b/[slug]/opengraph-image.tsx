@@ -15,7 +15,7 @@ export default async function OG({ params }: { params: { slug: string } }) {
   const name = board?.isPublic ? board.name : "Upvoted";
   const description = board?.isPublic
     ? (board.description ?? "Feedback board")
-    : "Open source feedback board";
+    : "Share ideas, vote, and follow the roadmap";
   const postCount = board?.isPublic ? board._count.posts : 0;
 
   return new ImageResponse(

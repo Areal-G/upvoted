@@ -8,7 +8,6 @@ import { StatusBadge } from "@/components/posts/status-badge";
 import { VoteButton } from "@/components/posts/vote-button";
 import { CommentForm } from "@/components/posts/comment-form";
 import { CommentItem } from "@/components/posts/comment-item";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type Props = { params: Promise<{ slug: string; id: string }> };
 
@@ -54,18 +53,6 @@ export default async function PostDetailPage({ params }: Props) {
           </div>
 
           <div className="text-muted-foreground mt-3 flex items-center gap-2 text-xs">
-            {post.author && (
-              <>
-                <Avatar className="h-5 w-5">
-                  <AvatarImage src={post.author.image ?? undefined} />
-                  <AvatarFallback className="text-[10px]">
-                    {(post.author.name ?? "?").slice(0, 1).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span>{post.author.name ?? "Anonymous"}</span>
-                <span>·</span>
-              </>
-            )}
             <time dateTime={post.createdAt.toISOString()}>
               {post.createdAt.toLocaleDateString()}
             </time>

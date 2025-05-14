@@ -2,7 +2,6 @@ import Link from "next/link";
 import { MessageSquare } from "lucide-react";
 import { StatusBadge } from "./status-badge";
 import { VoteButton } from "./vote-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { PublicPost } from "@/server/queries/posts";
 
 type Props = { post: PublicPost; slug: string; authenticated: boolean };
@@ -28,17 +27,6 @@ export function PostCard({ post, slug, authenticated }: Props) {
         <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">{post.content}</p>
 
         <div className="text-muted-foreground mt-3 flex items-center gap-3 text-xs">
-          {post.author && (
-            <div className="flex items-center gap-1.5">
-              <Avatar className="h-5 w-5">
-                <AvatarImage src={post.author.image ?? undefined} />
-                <AvatarFallback className="text-[10px]">
-                  {(post.author.name ?? "?").slice(0, 1).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span>{post.author.name ?? "Anonymous"}</span>
-            </div>
-          )}
           {post.category && (
             <span
               className="rounded px-1.5 py-0.5 text-[11px]"

@@ -1,8 +1,10 @@
 import type { NextAuthConfig } from "next-auth";
-import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 
-const providers: NextAuthConfig["providers"] = [GitHub];
+// Google verifies email ownership, so a Google sign-in may attach to an existing
+// password account with the same email instead of failing.
+const providers: NextAuthConfig["providers"] = [Google({ allowDangerousEmailAccountLinking: true })];
 
 if (process.env["E2E_TEST_MODE"] === "true") {
   providers.push(
@@ -46,6 +48,5 @@ export default {
   providers,
   pages: {
     signIn: "/login",
-    verifyRequest: "/verify-request",
   },
 } satisfies NextAuthConfig;

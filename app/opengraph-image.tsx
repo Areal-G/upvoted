@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Upvoted — Ship what your users actually want";
+export const alt = "Upvoted — Know exactly what to build next";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -31,10 +31,10 @@ export default function OG() {
           flexWrap: "wrap",
         }}
       >
-        Ship what your users actually want.
+        Know exactly what to build next.
       </div>
       <div style={{ fontSize: 28, marginTop: 32, opacity: 0.6, display: "flex" }}>
-        Open source feedback board · Next.js 16
+        Feedback boards and public roadmaps for product teams
       </div>
     </div>,
     size,
