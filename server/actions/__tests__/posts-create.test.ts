@@ -7,6 +7,13 @@ import { createPost } from "@/server/actions/posts";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 
+const mockCreatePostLimit = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({ success: true }),
+);
+vi.mock("@/lib/ratelimit", () => ({
+  createPostLimiter: { limit: mockCreatePostLimit },
+}));
+
 const mockedDb = db as unknown as ReturnType<typeof mockDeep<PrismaClient>>;
 
 type AuthFn = () => Promise<Session | null>;
@@ -95,6 +102,19 @@ describe("createPost", () => {
       categoryId: "clcategoryxxxxxxxxxxxxxxx",
     });
     expect(result).toMatchObject({ ok: false, error: "Invalid category" });
+  });
+
+  it("rejects when rate limit is exceeded", async () => {
+    mockCreatePostLimit.mockResolvedValueOnce({ success: false });
+    mockedDb.board.findUnique.mockResolvedValue({ id: "board-1", isPublic: true } as never);
+
+    const result = await createPost({
+      boardSlug: "demo",
+      title: "Valid title",
+      content: "Valid content with enough characters",
+    });
+    expect(result).toMatchObject({ ok: false, error: "Too many requests" });
+    expect(mockedDb.post.create).not.toHaveBeenCalled();
   });
 
   it("creates a post with valid input", async () => {

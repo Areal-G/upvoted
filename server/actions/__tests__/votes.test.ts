@@ -7,6 +7,13 @@ import { toggleVote } from "@/server/actions/votes";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 
+const mockToggleVoteLimit = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({ success: true }),
+);
+vi.mock("@/lib/ratelimit", () => ({
+  toggleVoteLimiter: { limit: mockToggleVoteLimit },
+}));
+
 const mockedDb = db as unknown as ReturnType<typeof mockDeep<PrismaClient>>;
 
 type AuthFn = () => Promise<Session | null>;
@@ -31,6 +38,15 @@ describe("toggleVote", () => {
 
     const result = await toggleVote({ postId: "clxxxxxxxxxxxxxxxxxxxxxxx" });
     expect(result).toEqual({ ok: false, error: "Unauthorized" });
+  });
+
+  it("rejects when rate limit is exceeded", async () => {
+    mockToggleVoteLimit.mockResolvedValueOnce({ success: false });
+
+    const result = await toggleVote({ postId: "clxxxxxxxxxxxxxxxxxxxxxxx" });
+    expect(result).toMatchObject({ ok: false, error: "Too many requests" });
+    expect(mockedDb.vote.create).not.toHaveBeenCalled();
+    expect(mockedDb.vote.delete).not.toHaveBeenCalled();
   });
 
   it("creates a vote when none exists", async () => {
