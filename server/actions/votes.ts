@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { toggleVoteLimiter } from "@/lib/ratelimit";
 import { toggleVoteSchema, type ToggleVoteInput } from "@/lib/validators/votes";
 
 type ActionResult<T = void> = { ok: true; data: T } | { ok: false; error: string };
@@ -15,6 +16,9 @@ export async function toggleVote(
 
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: "Unauthorized" };
+
+  const { success } = await toggleVoteLimiter.limit(session.user.id);
+  if (!success) return { ok: false, error: "Too many requests" };
 
   const post = await db.post.findUnique({
     where: { id: parsed.data.postId },

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { createPostLimiter } from "@/lib/ratelimit";
 import {
   changeStatusSchema,
   createPostSchema,
@@ -30,6 +31,9 @@ export async function createPost(
 
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: "Unauthorized" };
+
+  const { success } = await createPostLimiter.limit(session.user.id);
+  if (!success) return { ok: false, error: "Too many requests" };
 
   const board = await db.board.findUnique({
     where: { slug: parsed.data.boardSlug },
