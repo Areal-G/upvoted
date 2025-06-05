@@ -42,10 +42,14 @@ export function VoteButton({
     }
     startTransition(async () => {
       setOptimistic(!optimistic.hasVoted);
-      const result = await toggleVote({ postId });
-      if (!result.ok) {
-        toast.error(result.error);
-        router.refresh();
+      try {
+        const result = await toggleVote({ postId });
+        if (!result.ok) {
+          toast.error(result.error);
+          router.refresh();
+        }
+      } catch {
+        toast.error("Something went wrong. Please try again.");
       }
     });
   }
