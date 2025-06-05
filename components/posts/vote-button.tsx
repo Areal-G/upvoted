@@ -45,6 +45,7 @@ export function VoteButton({
       const result = await toggleVote({ postId });
       if (!result.ok) {
         toast.error(result.error);
+        router.refresh();
       }
     });
   }
