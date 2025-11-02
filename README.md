@@ -1,39 +1,182 @@
-# Upvoted: collect feedback, ship what matters
+<div align="center">
+
+<img src="readme/logo.svg" width="72" alt="Upvoted logo">
+
+# Upvoted
+
+**Feedback boards and public roadmaps for product teams.**
+Your users suggest ideas and vote on them. You get a ranked list of requests and a roadmap that shows customers you listened.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs)
-![Prisma](https://img.shields.io/badge/PostgreSQL-Prisma_7-336791?logo=postgresql&logoColor=white)
+![React](https://img.shields.io/badge/React-19.2-61dafb?logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prisma_7-336791?logo=postgresql&logoColor=white)
+![Auth.js](https://img.shields.io/badge/Auth.js-v5-7c3aed)
 ![Tests](https://img.shields.io/badge/Vitest-26_passing-6e9f18?logo=vitest&logoColor=white)
+![Demo](https://img.shields.io/badge/demo-one_click-4f39f6)
 
-[What it does](#what-it-does) · [The board](#the-board) · [Roadmap view](#roadmap-view) · [Stack](#stack) · [Local setup](#local-setup) · [Deploying](#deploying)
+[Features](#features) · [Design](#design) · [Screenshots](#screenshots) · [Tech stack](#tech-stack) · [Getting started](#getting-started)
 
-Feedback boards and public roadmaps for product teams. Your users suggest ideas and vote on them. You get a ranked list of requests and a roadmap that shows customers you listened.
+</div>
 
-## What it does
+<img alt="Upvoted public board with roadmap columns on desktop, and the owner dashboard on mobile" src="readme/hero.png">
 
-Every workspace gets a public board at `/b/<slug>`. Visitors sign in, post ideas, upvote the ones they want and talk about them in the comments.
+## Overview
 
-You work from a dashboard on the other side:
+Each workspace gets a public board at `/b/<slug>`. Visitors sign in, suggest ideas, upvote the ones they want and discuss them in comments. The team works from a dashboard: it sees what is most requested and moves ideas through **Open → Planned → In progress → Done** (or **Rejected**). Planned, in-progress and done ideas show up on the public roadmap straight away, both on the board and on a full roadmap page.
 
-- totals for posts, votes and comments
-- posts broken down by status
-- the top-voted ideas, so the next thing to build is obvious
-- a posts table where one click changes an idea's status or deletes spam
+It is a single Next.js project with server actions, Prisma and PostgreSQL, and it deploys to Vercel as is.
 
-Ideas move through **Open → Planned → In progress → Done** (or **Rejected**), and the public side updates the moment you change something.
+## Try the demo
 
-Want to poke around first? Run it locally and hit **Try demo** on the landing page. You land in *Planhive Feedback*, a sample workspace with 20 ideas, 245 votes and 22 comments. Break whatever you like: it resets when a demo starts, when you reload, and every night.
+Run it locally (see [Getting started](#getting-started)) and click **Try demo** on the landing page. You are signed in as a guest to *Planhive Feedback*, a sample workspace with 20 ideas, 245 votes and 22 comments. A banner reminds you that it is a demo. The workspace resets each time a demo starts, when you reload the page, and nightly through a cron job, so you can change anything.
 
-## The board
+To run your own board, create an account at `/signup` (username, email and password, or Google).
 
-The board is the part your users see.
+## Features
 
-- Roadmap columns sit at the top, with the feedback list underneath.
-- Filter ideas by status, sort by newest or most voted.
-- Voting is one click and feels instant (React 19's `useOptimistic`). If the server says no, you get a toast and the real count comes back.
-- Each idea has its own page with its status, vote count and a comment thread.
-- Authors stay anonymous on the board, and you can remove comments.
+### A public board with the roadmap on top
 
-Under the hood a vote is a toggle backed by a unique `(postId, userId)` index, so nobody can vote twice. The button bumps the count before the server answers:
+Roadmap columns sit above the feedback list (and swipe sideways on phones). Below them, ideas can be filtered by status and sorted by newest or most voted. Upvotes are one click and update instantly. (Shown in the header image above.)
+
+### Ideas with a conversation
+
+Every idea has its own page with its status, vote count and a comment thread. Authors stay anonymous on the board, and the board owner can remove comments.
+
+<img alt="Idea page with its vote count, status and comments" src="readme/post.png">
+
+### A dashboard that ranks the requests
+
+Totals for posts, votes and comments, a breakdown of posts by status and the top-voted ideas, so the next thing to build is obvious.
+
+<img alt="Dashboard overview with totals, posts by status and top-voted ideas" src="readme/dashboard.png">
+
+### One-click triage
+
+The posts table lists every idea with its votes and comments. Click a status to change it or delete spam, and the public board and roadmap update immediately.
+
+<img alt="Posts table with status controls" src="readme/posts.png">
+
+### Everything else
+
+| Area | What you get |
+|---|---|
+| Roadmap page | `/b/<slug>/roadmap` with Planned, In progress and Done columns |
+| Board settings | Name, description, slug, and public or private visibility (private boards return 404) |
+| Accounts | Email and password (scrypt-hashed) and Google sign-in through Auth.js v5 |
+| Authorization | Every server action checks the session and board ownership before writing |
+| Validation | zod schemas on every input |
+| Rate limits | Upstash limits on creating posts and on voting; they do nothing when unconfigured locally |
+| Demo mode | Guest sign-in, a demo banner and a nightly reset cron |
+
+## Design
+
+- **Light, quiet and content-first.** White surfaces, thin borders and Inter, so the ideas themselves carry the page.
+- **One accent.** A single indigo (`oklch(0.511 0.262 276.966)`, about `#4f39f6`) marks primary actions, the active vote and the logo, built on shadcn/ui tokens.
+- **Status colours mean the same thing everywhere.** Blue for Planned, amber for In progress, green for Done, on the board columns, badges and dashboard.
+- **The logo is the product's main gesture:** an upvote chevron on an indigo tile.
+
+The app is light-only for now; dark mode is on the roadmap.
+
+### On mobile
+
+Both sides work on phones. On the public board the roadmap columns become a horizontal swipe, and voting and commenting stay one tap away. In the dashboard the sidebar becomes a top bar, so the owner can triage from a phone.
+
+<img alt="Public board, idea page and the owner posts table on mobile" src="readme/mobile.png">
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img alt="Landing page" src="readme/landing.png"><br><b>Landing page</b> with the one-click demo</td>
+    <td width="50%"><img alt="Full roadmap page" src="readme/roadmap.png"><br><b>Roadmap</b>: what's planned, in progress and shipped</td>
+  </tr>
+  <tr>
+    <td width="50%"><img alt="Board settings" src="readme/settings.png"><br><b>Settings</b>: name, slug and visibility</td>
+    <td width="50%"><img alt="Sign-in page" src="readme/login.png"><br><b>Sign in</b> with email or Google</td>
+  </tr>
+</table>
+
+## Tech stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| Framework | Next.js 16 (App Router, Server Actions), React 19.2 | Server Components for reads, server actions for writes, no separate API layer |
+| Language | TypeScript | Shared types from the Prisma schema to the UI |
+| UI | Tailwind CSS 4, shadcn/ui (Radix), lucide-react, sonner | Accessible primitives with a small, consistent token set |
+| Database | PostgreSQL with Prisma 7 (`@prisma/adapter-pg`) | Relational data (boards, posts, votes) with a unique vote per user and post |
+| Auth | Auth.js v5 with the Prisma adapter: credentials and Google | Sessions in the same database, one `auth()` call in every action |
+| Validation | zod | One schema per action input |
+| Rate limiting | Upstash Ratelimit and Redis (optional) | Stops vote and post spam in production, no-op locally |
+| Tests | Vitest, Playwright | Unit tests for every action, end-to-end tests for the main flows |
+| Hosting | Vercel with a daily cron | Zero-config deploy, cron resets the demo |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    visitor["Visitor"] --> board["Public board<br/>/b/:slug · roadmap · idea pages"]
+    owner["Board owner"] --> dash["Dashboard<br/>overview · posts · settings"]
+    board --> actions
+    dash --> actions
+    subgraph next["Next.js 16"]
+        actions["Server actions<br/>posts · votes · comments · boards · auth · demo"]
+        queries["Server queries<br/>boards · posts · roadmap · stats"]
+        cron["/api/cron/reset-demo"]
+    end
+    board --> queries
+    dash --> queries
+    actions --> auth["Auth.js v5"]
+    actions --> rl["Upstash rate limit"]
+    actions --> db[("PostgreSQL<br/>Prisma")]
+    queries --> db
+    cron --> db
+    vercel["Vercel cron · 03:00 daily"] --> cron
+```
+
+- **Reads and writes are split.** `server/queries/*` are read-only loaders for Server Components. `server/actions/*` are the only way to change data.
+- **Data model:** `User`, `Board` (slug, visibility), `Post` (status enum), `Vote` (unique per user and post), `Category`, `Comment`, plus the Auth.js `Account`, `Session` and `VerificationToken` tables.
+- **The demo workspace** is rebuilt from fixtures in `lib/demo/` by `resetDemoWorkspace`. Starting a demo, reloading the page and the nightly cron all call it.
+
+## Engineering highlights
+
+### Every write follows the same five steps
+
+Each server action validates, authenticates, rate-limits, checks access, then writes and revalidates the pages that show the data. Voting is a toggle backed by a unique `(postId, userId)` index, so a user can never vote twice.
+
+```ts
+// server/actions/votes.ts
+export async function toggleVote(input: ToggleVoteInput) {
+  const parsed = toggleVoteSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid input" };
+
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "Unauthorized" };
+
+  const { success } = await toggleVoteLimiter.limit(session.user.id);
+  if (!success) return { ok: false, error: "Too many requests" };
+
+  const post = await db.post.findUnique({
+    where: { id: parsed.data.postId },
+    select: { id: true, board: { select: { slug: true, isPublic: true } } },
+  });
+  if (!post || !post.board.isPublic) return { ok: false, error: "Post not found" };
+
+  const existing = await db.vote.findUnique({
+    where: { postId_userId: { postId: post.id, userId: session.user.id } },
+  });
+  if (existing) await db.vote.delete({ where: { id: existing.id } });
+  else await db.vote.create({ data: { postId: post.id, userId: session.user.id } });
+
+  const voteCount = await db.vote.count({ where: { postId: post.id } });
+  revalidatePath(`/b/${post.board.slug}`);
+  revalidatePath(`/b/${post.board.slug}/posts/${post.id}`);
+  return { ok: true, data: { hasVoted: !existing, voteCount } };
+}
+```
+
+### Votes that feel instant
+
+The vote button uses React 19's `useOptimistic`: the count changes on click, and if the server says no (rate limit, private board) the button shows a toast and refreshes back to the real number.
 
 ```tsx
 // components/posts/vote-button.tsx
@@ -44,54 +187,27 @@ const [optimistic, setOptimistic] = useOptimistic(
     hasVoted: nextHasVoted,
   }),
 );
+
+function handleClick() {
+  startTransition(async () => {
+    setOptimistic(!optimistic.hasVoted);
+    const result = await toggleVote({ postId });
+    if (!result.ok) {
+      toast.error(result.error);
+      router.refresh();
+    }
+  });
+}
 ```
 
-In settings you pick the board's name, description and slug, and whether it's public or private. Private boards return 404.
+## Getting started
 
-It works on phones too. The roadmap columns become a sideways swipe, and in the dashboard the sidebar turns into a top bar, so you can triage from your phone.
+### Prerequisites
 
-## Roadmap view
+- Node.js 20+ and npm
+- PostgreSQL (Docker is the easiest way)
 
-Anything marked Planned, In progress or Done shows up on the roadmap right away. There are two places to see it:
-
-- as columns at the top of the board
-- on a full page at `/b/<slug>/roadmap`
-
-The colours stay the same everywhere: blue for Planned, amber for In progress, green for Done.
-
-## Stack
-
-| | |
-|---|---|
-| Framework | Next.js 16 (App Router, server actions), React 19.2 |
-| Language | TypeScript |
-| UI | Tailwind CSS 4, shadcn/ui, lucide-react, sonner |
-| Database | PostgreSQL with Prisma 7 |
-| Auth | Auth.js v5: email and password (scrypt) or Google |
-| Validation | zod |
-| Rate limits | Upstash, optional |
-| Tests | Vitest and Playwright |
-| Hosting | Vercel with a daily cron |
-
-Reads live in `server/queries/*` and writes in `server/actions/*`. Every action does the same thing: validate, check the session, rate-limit, check access, write, revalidate.
-
-The data model is small: `User`, `Board` (slug, visibility), `Post` (status enum), `Vote` (unique per user and post), `Category` and `Comment`, plus the Auth.js tables. The demo workspace is rebuilt from fixtures in `lib/demo/`.
-
-```
-app/
-├── (auth)/           login and signup
-├── (dashboard)/      dashboard overview, posts, settings
-├── b/[slug]/         public board, idea pages, roadmap
-└── api/              Auth.js, board visibility, demo-reset cron
-server/
-├── actions/          mutations + tests
-└── queries/          read models
-prisma/               schema, migrations, seed
-```
-
-## Local setup
-
-You need Node.js 20+, npm and PostgreSQL (Docker is the easy way).
+### Install and run
 
 ```bash
 git clone <your-fork-url> upvoted
@@ -105,48 +221,84 @@ npm run db:seed        # loads the "Try demo" workspace
 npm run dev            # http://localhost:3000
 ```
 
-Heads up: Prisma and the seed script read `.env`, not `.env.local`.
+Prisma and the seed script read `.env`, not `.env.local`.
 
 <details>
-<summary>Environment variables</summary>
+<summary><b>Environment variables</b></summary>
 
-| Variable | Required | What it's for |
+| Variable | Required | Description |
 |---|---|---|
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `AUTH_SECRET` | Yes | Auth.js secret (`openssl rand -base64 32`) |
-| `AUTH_URL`, `AUTH_TRUST_HOST` | Yes | Public URL, and trusting the host header behind a proxy |
-| `NEXT_PUBLIC_APP_URL` | Yes | Base URL used in links |
-| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | No | Google sign-in |
-| `DEMO_MODE` | No | `true` shows **Try demo** |
-| `CRON_SECRET` | With demo | Protects the demo-reset cron |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Production | Rate limiting, a no-op when blank |
+| `AUTH_URL`, `AUTH_TRUST_HOST` | Yes | Public URL, and trust the host header behind a proxy |
+| `NEXT_PUBLIC_APP_URL` | Yes | Public base URL used in links |
+| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | No | Google sign-in. Redirect URI: `<url>/api/auth/callback/google` |
+| `DEMO_MODE` | No | `true` shows **Try demo** and the guest workspace |
+| `CRON_SECRET` | With demo | Protects `/api/cron/reset-demo` |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Production | Rate limiting; does nothing when blank |
 
 </details>
 
-Tests:
+<details>
+<summary><b>Scripts</b></summary>
+
+| Script | What it does |
+|---|---|
+| `npm run dev` / `build` / `start` | Development server, production build, production server |
+| `npm run lint` / `typecheck` | ESLint / `tsc --noEmit` |
+| `npm test` / `test:watch` | Vitest |
+| `npm run test:e2e` / `test:e2e:ui` | Playwright (uses `.env.test`) |
+| `npm run db:migrate` / `db:push` / `db:reset` | Prisma migrations |
+| `npm run db:seed` | Load the demo workspace |
+| `npm run db:studio` / `db:generate` | Prisma Studio / regenerate the client |
+
+</details>
+
+<details>
+<summary><b>Project structure</b></summary>
+
+```
+app/
+├── (auth)/           login and signup
+├── (dashboard)/      dashboard overview, posts, settings
+├── b/[slug]/         public board, idea pages, roadmap
+├── api/              Auth.js, board visibility, demo-reset cron
+└── page.tsx          landing page
+components/           UI (shadcn/ui), board, dashboard and demo components
+lib/                  Prisma client, validators, rate limits, password hashing, demo fixtures
+server/
+├── actions/          mutations (posts, votes, comments, boards, auth, demo) + tests
+└── queries/          read models (boards, posts, roadmap, stats)
+prisma/               schema, migrations, seed
+e2e/                  Playwright specs
+```
+
+</details>
+
+## Testing and quality
 
 ```bash
 npm run typecheck
-npm test               # 26 tests
+npm test               # 5 files, 26 tests
 npm run test:e2e       # needs a test database in .env.test
 ```
 
-Vitest covers the server actions (validation, rate limits, ownership checks). Playwright covers the happy path (sign in, post, vote, comment), the owner's status changes, and the "you shouldn't be here" cases: guests get sent to login, non-owners can't open someone else's settings, and private boards 404.
+- The Vitest suites cover the server actions for boards, posts (create, status, edit, delete), votes and comments, including validation, rate limits and ownership checks.
+- The Playwright specs cover the happy path (sign in, post, vote, comment), the owner's status changes and deletes, and authorization: guests are redirected to login, non-owners can't open another board's settings, and private boards return 404.
 
-Other scripts worth knowing: `npm run db:reset`, `npm run db:studio` and `npm run lint`.
+## Deployment
 
-## Deploying
+Deploy to Vercel with a managed PostgreSQL database (Neon, Supabase or Vercel Postgres):
 
-Vercel plus a managed Postgres (Neon, Supabase or Vercel Postgres) is the path of least resistance.
-
-1. Set the env vars, with `AUTH_URL` and `NEXT_PUBLIC_APP_URL` pointing at your domain.
+1. Set the environment variables above, with `AUTH_URL` and `NEXT_PUBLIC_APP_URL` pointing at your domain.
 2. Run `npx prisma migrate deploy` against the production database.
 3. Add Upstash Redis for rate limiting.
-4. If `DEMO_MODE` is on, set `CRON_SECRET`. `vercel.json` already runs the reset daily at 03:00.
+4. If `DEMO_MODE` is on, set `CRON_SECRET`. `vercel.json` already schedules `/api/cron/reset-demo` daily at 03:00.
 
-## What's next
+## Roadmap
 
 - Dark mode.
-- Emails when an idea you voted for changes status.
-- More boards per account, and teammates who can moderate.
-- Merging duplicate ideas.
+- Email notifications when an idea you voted for changes status.
+- Several boards per account, and team members with shared moderation.
+- Merge duplicate ideas and combine their votes.
+- An embeddable widget and a public API.
