@@ -6,9 +6,10 @@ export const alt = "Upvoted board";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function OG({ params }: { params: { slug: string } }) {
+export default async function OG({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const board = await db.board.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     select: { name: true, description: true, isPublic: true, _count: { select: { posts: true } } },
   });
 

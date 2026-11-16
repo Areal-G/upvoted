@@ -29,7 +29,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         {children}
         <Toaster />
-        {process.env["DEMO_MODE"] === "true" && <DemoResetOnReload />}
+        <DemoResetOnReload />
       </body>
     </html>
   );

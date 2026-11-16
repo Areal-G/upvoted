@@ -1,0 +1,9 @@
+# Portfolio demo: no database, all data lives in memory (see lib/db.ts).
+# Only AUTH_SECRET needs to be set in the Netlify UI (Site configuration → Environment variables).
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_PUBLIC_APP_URL = "https://upvoted.arealjagema.com"

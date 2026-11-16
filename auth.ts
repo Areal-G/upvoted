@@ -7,7 +7,6 @@ import { createDefaultBoard } from "@/lib/boards";
 import { verifyPassword } from "@/lib/password";
 import { signInSchema } from "@/lib/validators/auth";
 import { DEMO_EMAIL } from "@/lib/demo/data";
-import { resetDemoWorkspace } from "@/lib/demo/reset";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -25,7 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
-    // Google sign-ups get their board here; password sign-ups create it in signUp()
+    // Google sign-ups get their board here
     async createUser({ user }) {
       if (!user.id || !user.email) return;
       await createDefaultBoard(db, { id: user.id, name: user.name, email: user.email });
@@ -54,15 +53,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       id: "demo",
       credentials: {},
-      async authorize() {
-        if (process.env["DEMO_MODE"] !== "true") return null;
-        let user = await db.user.findUnique({ where: { email: DEMO_EMAIL } });
-        if (!user) {
-          await resetDemoWorkspace(db);
-          user = await db.user.findUnique({ where: { email: DEMO_EMAIL } });
-        }
-        return user;
-      },
+      // The in-memory database seeds the guest account on startup
+      authorize: () => db.user.findUnique({ where: { email: DEMO_EMAIL } }),
     }),
   ],
 });

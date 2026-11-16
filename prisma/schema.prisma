@@ -2,6 +2,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Writes the full datamodel for the in-memory database in lib/memory-db
+generator memoryDb {
+  provider = "node lib/memory-db/datamodel-generator.mjs"
+  output   = "../lib/memory-db/datamodel.generated.json"
+}
+
 datasource db {
   provider = "postgresql"
 }

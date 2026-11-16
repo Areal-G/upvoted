@@ -11,7 +11,6 @@ type Props = { searchParams: Promise<{ callbackUrl?: string; error?: string }> }
 
 export default async function LoginPage({ searchParams }: Props) {
   const { callbackUrl, error } = await searchParams;
-  const demoEnabled = process.env["DEMO_MODE"] === "true";
 
   return (
     <AuthShell
@@ -31,20 +30,18 @@ export default async function LoginPage({ searchParams }: Props) {
       <OrDivider />
       <LoginForm callbackUrl={callbackUrl} />
 
-      {demoEnabled && (
-        <div className="bg-primary/5 border-primary/20 mt-6 rounded-lg border p-3">
-          <p className="text-sm font-medium">Just looking around?</p>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            Explore a demo workspace full of sample feedback. No account needed.
-          </p>
-          <TryDemoButton
-            variant="secondary"
-            size="sm"
-            className="mt-3 w-full"
-            label="Continue as guest"
-          />
-        </div>
-      )}
+      <div className="bg-primary/5 border-primary/20 mt-6 rounded-lg border p-3">
+        <p className="text-sm font-medium">Just looking around?</p>
+        <p className="text-muted-foreground mt-0.5 text-xs">
+          Explore a demo workspace full of sample feedback. No account needed.
+        </p>
+        <TryDemoButton
+          variant="secondary"
+          size="sm"
+          className="mt-3 w-full"
+          label="Continue as guest"
+        />
+      </div>
     </AuthShell>
   );
 }

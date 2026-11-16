@@ -3,10 +3,7 @@
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
-import { db } from "@/lib/db";
-import { createDefaultBoard } from "@/lib/boards";
-import { hashPassword } from "@/lib/password";
-import { signInSchema, signUpSchema } from "@/lib/validators/auth";
+import { signInSchema } from "@/lib/validators/auth";
 
 export type AuthFormState = {
   error?: string;
@@ -19,46 +16,6 @@ const safeCallback = (raw: FormDataEntryValue | null) => {
   // Only allow same-site paths to avoid open redirects
   return url.startsWith("/") && !url.startsWith("//") ? url : "/dashboard";
 };
-
-export async function signUp(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
-  const values = {
-    username: String(formData.get("username") ?? ""),
-    email: String(formData.get("email") ?? ""),
-  };
-  const parsed = signUpSchema.safeParse({ ...values, password: formData.get("password") });
-  if (!parsed.success) {
-    return { error: "Please fix the fields below.", issues: parsed.error.flatten().fieldErrors, values };
-  }
-  const { username, email, password } = parsed.data;
-
-  const taken = await db.user.findFirst({
-    where: { OR: [{ email }, { username }] },
-    select: { email: true, passwordHash: true },
-  });
-  if (taken) {
-    if (taken.email === email) {
-      return {
-        issues: {
-          email: [
-            taken.passwordHash
-              ? "An account with this email already exists. Sign in instead."
-              : "This email is linked to Google. Use Continue with Google.",
-          ],
-        },
-        values,
-      };
-    }
-    return { issues: { username: ["This username is taken"] }, values };
-  }
-
-  const user = await db.user.create({
-    data: { username, email, name: username, passwordHash: await hashPassword(password) },
-  });
-  await createDefaultBoard(db, user);
-
-  await signIn("password", { identifier: email, password, redirectTo: "/dashboard" });
-  return {};
-}
 
 export async function logIn(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const values = { identifier: String(formData.get("identifier") ?? "") };

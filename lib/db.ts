@@ -1,16 +1,18 @@
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import type { DMMF } from "@prisma/generator-helper";
+import { seedDemoWorkspace } from "@/lib/demo/seed";
+import { createMemoryDatabase, type MemoryDatabase } from "@/lib/memory-db/engine";
+import datamodel from "@/lib/memory-db/datamodel.generated.json";
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+// The demo runs without a database. Each server instance keeps its own in-memory
+// copy, seeded with the same demo workspace (and the same IDs) on startup.
+const globalForDb = globalThis as unknown as { memoryDb?: MemoryDatabase };
 
-function createPrismaClient() {
-  const adapter = new PrismaPg({ connectionString: process.env["DATABASE_URL"] });
-  return new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
-}
+const memoryDb = (globalForDb.memoryDb ??= createMemoryDatabase(
+  datamodel as unknown as DMMF.Datamodel,
+  { seed: seedDemoWorkspace },
+));
 
-export const db = globalForPrisma.prisma ?? createPrismaClient();
+export const db = memoryDb.client;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+// Restores the demo workspace to its seeded state
+export const resetDemoWorkspace = () => memoryDb.reset();
