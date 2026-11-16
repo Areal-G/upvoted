@@ -1,15 +1,12 @@
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 import authConfig from "./auth.config";
-import { DEMO_EMAIL } from "@/lib/demo/data";
 
 const { auth } = NextAuth(authConfig);
 
 export default auth(async (req) => {
   const user = (req.auth as { user?: { email?: string | null } } | null)?.user;
   const isAuthed = !!user;
-  // The shared demo guest is not a real login: let it reach /login and /signup
-  const isGuest = user?.email === DEMO_EMAIL;
   const { pathname } = req.nextUrl;
 
   const isProtected = pathname.startsWith("/dashboard") || pathname.startsWith("/settings");
@@ -21,7 +18,7 @@ export default auth(async (req) => {
     return NextResponse.redirect(url);
   }
 
-  if (isAuthPage && isAuthed && !isGuest) {
+  if (isAuthPage && isAuthed) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 

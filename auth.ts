@@ -6,8 +6,6 @@ import authConfig from "./auth.config";
 import { createDefaultBoard } from "@/lib/boards";
 import { verifyPassword } from "@/lib/password";
 import { signInSchema } from "@/lib/validators/auth";
-import { DEMO_EMAIL } from "@/lib/demo/data";
-import { resetDemoWorkspace } from "@/lib/demo/reset";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -49,19 +47,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!(await verifyPassword(password, user.passwordHash))) return null;
 
         return { id: user.id, email: user.email, name: user.name ?? user.username };
-      },
-    }),
-    Credentials({
-      id: "demo",
-      credentials: {},
-      async authorize() {
-        if (process.env["DEMO_MODE"] !== "true") return null;
-        let user = await db.user.findUnique({ where: { email: DEMO_EMAIL } });
-        if (!user) {
-          await resetDemoWorkspace(db);
-          user = await db.user.findUnique({ where: { email: DEMO_EMAIL } });
-        }
-        return user;
       },
     }),
   ],

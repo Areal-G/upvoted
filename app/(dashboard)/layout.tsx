@@ -4,7 +4,6 @@ import { auth, signOut } from "@/auth";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
-import { DEMO_EMAIL } from "@/lib/demo/data";
 import { ExternalLink, LayoutDashboard, Map, MessageSquare, Settings, LogOut } from "lucide-react";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -73,24 +72,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </aside>
 
       <div className="min-w-0 flex-1">
-        {session.user.email === DEMO_EMAIL && (
-          <div className="bg-primary/5 border-primary/15 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 text-sm md:px-8">
-            <p>
-              <span className="font-medium">You&apos;re exploring the demo.</span>{" "}
-              <span className="text-muted-foreground">
-                Try anything, it resets when you reload. Ready for your own board?
-              </span>
-            </p>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Sign in</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/signup">Get started</Link>
-              </Button>
-            </div>
-          </div>
-        )}
         <main className="p-4 md:p-8">{children}</main>
       </div>
     </div>

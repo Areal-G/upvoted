@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-import { DemoResetOnReload } from "@/components/demo/demo-reset-on-reload";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -29,7 +28,6 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         {children}
         <Toaster />
-        {process.env["DEMO_MODE"] === "true" && <DemoResetOnReload />}
       </body>
     </html>
   );

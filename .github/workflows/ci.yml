@@ -24,8 +24,24 @@ jobs:
           DATABASE_URL: postgresql://fake:fake@localhost:5432/fake
           AUTH_SECRET: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           NEXT_PUBLIC_APP_URL: http://localhost:3000
+  # The e2e suite needs a real Postgres database. It runs only once the
+  # E2E_DATABASE_URL and E2E_DIRECT_DATABASE_URL repository secrets are set,
+  # and is skipped (not failed) otherwise.
+  e2e-config:
+    name: Check e2e database
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - id: check
+        env:
+          E2E_DATABASE_URL: ${{ secrets.E2E_DATABASE_URL }}
+        run: echo "enabled=${{ env.E2E_DATABASE_URL != '' }}" >> "$GITHUB_OUTPUT"
+
   e2e:
     name: End-to-end tests
+    needs: e2e-config
+    if: needs.e2e-config.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{ secrets.E2E_DATABASE_URL }}

@@ -1,31 +1,28 @@
 import type { PostStatus } from "@prisma/client";
 
-// Sample workspace shown to "Try demo" guests: the feedback board of Planhive,
-// a fictional task and project planning app for teams.
+// Sample workspace: the feedback board of Planhive, a fictional task and project
+// planning app for teams.
 
-export const DEMO_EMAIL = "demo@upvoted.app";
-export const DEMO_SLUG = "planhive";
-export const DEMO_BOARD_PATH = `/b/${DEMO_SLUG}`;
-export const DEMO_OWNER_NAME = "Planhive Team";
+export const SAMPLE_OWNER_NAME = "Planhive Team";
 
-export const DEMO_BOARD = {
-  slug: DEMO_SLUG,
+export const SAMPLE_BOARD = {
+  slug: "planhive",
   name: "Planhive Feedback",
   description:
     "Help us shape Planhive. Suggest features, upvote what your team needs and follow what we're building.",
   isPublic: true,
 };
 
-export const DEMO_CATEGORIES = [
+export const SAMPLE_CATEGORIES = [
   { name: "Feature", color: "#6366f1" },
   { name: "Bug", color: "#ef4444" },
   { name: "Improvement", color: "#10b981" },
   { name: "Integration", color: "#f59e0b" },
 ] as const;
 
-export type DemoCategory = (typeof DEMO_CATEGORIES)[number]["name"];
+export type SampleCategory = (typeof SAMPLE_CATEGORIES)[number]["name"];
 
-export const DEMO_VOTERS = [
+export const SAMPLE_VOTERS = [
   "Maya Chen", "Liam O'Connor", "Priya Raman", "Jonas Weber", "Sofia Alvarez",
   "Daniel Kim", "Amara Okafor", "Lucas Martin", "Hannah Schmidt", "Ethan Brooks",
   "Yuki Tanaka", "Olivia Rossi", "Noah Johnson", "Fatima Zahra", "Mateo Silva",
@@ -33,19 +30,19 @@ export const DEMO_VOTERS = [
   "Ravi Patel", "Isabella Costa", "Tom Fischer", "Leila Haddad",
 ];
 
-export type DemoPost = {
+export type SamplePost = {
   title: string;
   content: string;
   status: PostStatus;
-  cat: DemoCategory;
+  cat: SampleCategory;
   daysAgo: number;
   votes: number;
   // Comments starting with "team:" are posted by the Planhive team (the board owner)
   comments: string[];
-  guestVoted?: boolean;
+  ownerVoted?: boolean;
 };
 
-export const DEMO_POSTS: DemoPost[] = [
+export const SAMPLE_POSTS: SamplePost[] = [
   {
     title: "Google Calendar sync for due dates",
     content:
@@ -80,7 +77,7 @@ export const DEMO_POSTS: DemoPost[] = [
       "Mark a task as blocked by another one, and warn me when I move a task's date before the task it depends on.",
     status: "PLANNED", cat: "Feature", daysAgo: 41, votes: 18,
     comments: ["A simple timeline view showing the chain would make this even better."],
-    guestVoted: true,
+    ownerVoted: true,
   },
   {
     title: "Slack notifications for assigned tasks",
@@ -95,7 +92,7 @@ export const DEMO_POSTS: DemoPost[] = [
       "I often check tasks on the train with no signal. Let me view and tick off tasks offline and sync when I'm back online.",
     status: "OPEN", cat: "Feature", daysAgo: 22, votes: 15,
     comments: ["Same for flights. Even read-only offline access would help."],
-    guestVoted: true,
+    ownerVoted: true,
   },
   {
     title: "Time tracking on tasks",
@@ -145,7 +142,7 @@ export const DEMO_POSTS: DemoPost[] = [
       "Shortcuts to create a task, assign it and change its status without touching the mouse. Like Linear's command menu.",
     status: "OPEN", cat: "Improvement", daysAgo: 18, votes: 10,
     comments: [],
-    guestVoted: true,
+    ownerVoted: true,
   },
   {
     title: "Project templates",
@@ -160,7 +157,7 @@ export const DEMO_POSTS: DemoPost[] = [
       "Give clients a link to see progress on their project without inviting them as members.",
     status: "OPEN", cat: "Feature", daysAgo: 12, votes: 8,
     comments: [],
-    guestVoted: true,
+    ownerVoted: true,
   },
   {
     title: "Built-in team chat",
@@ -182,7 +179,7 @@ export const DEMO_POSTS: DemoPost[] = [
       "See how many tasks each person has due this week so we can rebalance before someone gets overloaded.",
     status: "OPEN", cat: "Feature", daysAgo: 4, votes: 7,
     comments: [],
-    guestVoted: true,
+    ownerVoted: true,
   },
   {
     title: "Bulk edit tasks",

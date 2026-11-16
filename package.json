@@ -9,18 +9,18 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:reset": "prisma migrate reset --force",
+    "seed": "tsx prisma/seed/index.ts",
     "postinstall": "prisma generate",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "dotenv -e .env.test -- playwright test",
     "test:e2e:ui": "dotenv -e .env.test -- playwright test --ui",
     "start:e2e": "dotenv -e .env.test -- next start",
-    "e2e:db:reset": "dotenv -e .env.test -- prisma migrate reset --force --skip-seed && dotenv -e .env.test -- npm run db:seed"
+    "e2e:db:reset": "dotenv -e .env.test -- prisma migrate reset --force --skip-seed && dotenv -e .env.test -- npm run seed"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
@@ -64,8 +64,5 @@
     "typescript": "^6.0.3",
     "vitest": "^4.1.6",
     "vitest-mock-extended": "^4.0.0"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

@@ -12,7 +12,7 @@ Your users suggest ideas and vote on them. You get a ranked list of requests and
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prisma_7-336791?logo=postgresql&logoColor=white)
 ![Auth.js](https://img.shields.io/badge/Auth.js-v5-7c3aed)
 ![Tests](https://img.shields.io/badge/Vitest-26_passing-6e9f18?logo=vitest&logoColor=white)
-![Demo](https://img.shields.io/badge/demo-one_click-4f39f6)
+[![Live demo](https://img.shields.io/badge/demo-live-4f39f6)](https://upvoted.arealjagema.com)
 
 [Features](#features) · [Design](#design) · [Screenshots](#screenshots) · [Tech stack](#tech-stack) · [Getting started](#getting-started)
 
@@ -26,11 +26,11 @@ Each workspace gets a public board at `/b/<slug>`. Visitors sign in, suggest ide
 
 It is a single Next.js project with server actions, Prisma and PostgreSQL, and it deploys to Vercel as is.
 
-## Try the demo
+## Live demo
 
-Run it locally (see [Getting started](#getting-started)) and click **Try demo** on the landing page. You are signed in as a guest to *Planhive Feedback*, a sample workspace with 20 ideas, 245 votes and 22 comments. A banner reminds you that it is a demo. The workspace resets each time a demo starts, when you reload the page, and nightly through a cron job, so you can change anything.
+Try it at **[upvoted.arealjagema.com](https://upvoted.arealjagema.com)**: click **Try demo** to explore *Planhive Feedback*, a sample workspace with 20 ideas, 245 votes and 22 comments. The demo runs from the [`demo`](https://github.com/Areal-G/upvoted/tree/demo) branch, which keeps its data in memory and needs no database.
 
-To run your own board, create an account at `/signup` (username, email and password, or Google).
+This branch is the full app. To run your own board, create an account at `/signup` (username, email and password, or Google), or load the same sample workspace locally with `npm run seed`.
 
 ## Features
 
@@ -66,7 +66,7 @@ The posts table lists every idea with its votes and comments. Click a status to 
 | Authorization | Every server action checks the session and board ownership before writing |
 | Validation | zod schemas on every input |
 | Rate limits | Upstash limits on creating posts and on voting; they do nothing when unconfigured locally |
-| Demo mode | Guest sign-in, a demo banner and a nightly reset cron |
+| Sample data | `npm run seed` loads a sample board and an owner account you can sign in with |
 
 ## Design
 
@@ -87,7 +87,7 @@ Both sides work on phones. On the public board the roadmap columns become a hori
 
 <table>
   <tr>
-    <td width="50%"><img alt="Landing page" src="readme/landing.png"><br><b>Landing page</b> with the one-click demo</td>
+    <td width="50%"><img alt="Landing page" src="readme/landing.png"><br><b>Landing page</b></td>
     <td width="50%"><img alt="Full roadmap page" src="readme/roadmap.png"><br><b>Roadmap</b>: what's planned, in progress and shipped</td>
   </tr>
   <tr>
@@ -108,7 +108,7 @@ Both sides work on phones. On the public board the roadmap columns become a hori
 | Validation | zod | One schema per action input |
 | Rate limiting | Upstash Ratelimit and Redis (optional) | Stops vote and post spam in production, no-op locally |
 | Tests | Vitest, Playwright | Unit tests for every action, end-to-end tests for the main flows |
-| Hosting | Vercel with a daily cron | Zero-config deploy, cron resets the demo |
+| Hosting | Vercel | Zero-config deploy |
 
 ## Architecture
 
@@ -119,9 +119,8 @@ flowchart LR
     board --> actions
     dash --> actions
     subgraph next["Next.js 16"]
-        actions["Server actions<br/>posts · votes · comments · boards · auth · demo"]
+        actions["Server actions<br/>posts · votes · comments · boards · auth"]
         queries["Server queries<br/>boards · posts · roadmap · stats"]
-        cron["/api/cron/reset-demo"]
     end
     board --> queries
     dash --> queries
@@ -129,13 +128,11 @@ flowchart LR
     actions --> rl["Upstash rate limit"]
     actions --> db[("PostgreSQL<br/>Prisma")]
     queries --> db
-    cron --> db
-    vercel["Vercel cron · 03:00 daily"] --> cron
 ```
 
 - **Reads and writes are split.** `server/queries/*` are read-only loaders for Server Components. `server/actions/*` are the only way to change data.
 - **Data model:** `User`, `Board` (slug, visibility), `Post` (status enum), `Vote` (unique per user and post), `Category`, `Comment`, plus the Auth.js `Account`, `Session` and `VerificationToken` tables.
-- **The demo workspace** is rebuilt from fixtures in `lib/demo/` by `resetDemoWorkspace`. Starting a demo, reloading the page and the nightly cron all call it.
+- **Sample data** lives in `prisma/seed/`. `npm run seed` rebuilds the sample workspace and is safe to re-run.
 
 ## Engineering highlights
 
@@ -217,11 +214,11 @@ docker run -d --name upvoted-pg -e POSTGRES_USER=upvoted \
   -e POSTGRES_PASSWORD=upvoted -e POSTGRES_DB=upvoted -p 5432:5432 postgres:17-alpine
 npm install
 npx prisma migrate deploy
-npm run db:seed        # loads the "Try demo" workspace
+npm run seed           # optional: loads the sample workspace
 npm run dev            # http://localhost:3000
 ```
 
-Prisma and the seed script read `.env`, not `.env.local`.
+Prisma and the seed script read `.env`, not `.env.local`. The seed prints the sample board owner's email; the password is `SEED_OWNER_PASSWORD`, or the local-only default in `prisma/seed/config.ts`.
 
 <details>
 <summary><b>Environment variables</b></summary>
@@ -232,10 +229,11 @@ Prisma and the seed script read `.env`, not `.env.local`.
 | `AUTH_SECRET` | Yes | Auth.js secret (`openssl rand -base64 32`) |
 | `AUTH_URL`, `AUTH_TRUST_HOST` | Yes | Public URL, and trust the host header behind a proxy |
 | `NEXT_PUBLIC_APP_URL` | Yes | Public base URL used in links |
+| `DIRECT_URL` | No | Direct database connection for migrations when `DATABASE_URL` is pooled |
 | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | No | Google sign-in. Redirect URI: `<url>/api/auth/callback/google` |
-| `DEMO_MODE` | No | `true` shows **Try demo** and the guest workspace |
-| `CRON_SECRET` | With demo | Protects `/api/cron/reset-demo` |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Production | Rate limiting; does nothing when blank |
+| `SEED_OWNER_EMAIL`, `SEED_OWNER_PASSWORD` | No | Sign-in for the owner created by `npm run seed`; defaults are for local use only |
+| `E2E_TEST_MODE` | Tests only | Enables the passwordless login used by Playwright |
 
 </details>
 
@@ -249,7 +247,7 @@ Prisma and the seed script read `.env`, not `.env.local`.
 | `npm test` / `test:watch` | Vitest |
 | `npm run test:e2e` / `test:e2e:ui` | Playwright (uses `.env.test`) |
 | `npm run db:migrate` / `db:push` / `db:reset` | Prisma migrations |
-| `npm run db:seed` | Load the demo workspace |
+| `npm run seed` | Load the sample workspace |
 | `npm run db:studio` / `db:generate` | Prisma Studio / regenerate the client |
 
 </details>
@@ -262,14 +260,14 @@ app/
 ├── (auth)/           login and signup
 ├── (dashboard)/      dashboard overview, posts, settings
 ├── b/[slug]/         public board, idea pages, roadmap
-├── api/              Auth.js, board visibility, demo-reset cron
+├── api/              Auth.js, board visibility
 └── page.tsx          landing page
-components/           UI (shadcn/ui), board, dashboard and demo components
-lib/                  Prisma client, validators, rate limits, password hashing, demo fixtures
+components/           UI (shadcn/ui), auth, board and post components
+lib/                  Prisma client, validators, rate limits, password hashing
 server/
-├── actions/          mutations (posts, votes, comments, boards, auth, demo) + tests
+├── actions/          mutations (posts, votes, comments, boards, auth) + tests
 └── queries/          read models (boards, posts, roadmap, stats)
-prisma/               schema, migrations, seed
+prisma/               schema, migrations, sample-data seed
 e2e/                  Playwright specs
 ```
 
@@ -293,7 +291,6 @@ Deploy to Vercel with a managed PostgreSQL database (Neon, Supabase or Vercel Po
 1. Set the environment variables above, with `AUTH_URL` and `NEXT_PUBLIC_APP_URL` pointing at your domain.
 2. Run `npx prisma migrate deploy` against the production database.
 3. Add Upstash Redis for rate limiting.
-4. If `DEMO_MODE` is on, set `CRON_SECRET`. `vercel.json` already schedules `/api/cron/reset-demo` daily at 03:00.
 
 ## Roadmap
 

@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
-import { TryDemoButton } from "@/components/demo/try-demo-button";
-import { DEMO_BOARD_PATH } from "@/lib/demo/data";
 import {
   ArrowRight,
   BarChart3,
@@ -18,7 +16,7 @@ import {
   Workflow,
 } from "lucide-react";
 
-const DEMO_BOARD = DEMO_BOARD_PATH;
+const LIVE_DEMO_URL = "https://upvoted.arealjagema.com";
 
 const PREVIEW_POSTS = [
   { title: "Google Calendar sync for due dates", votes: 22, status: "In progress", tone: "amber", tag: "Integration", comments: 3 },
@@ -123,7 +121,6 @@ export default function Home() {
             <Link href="/login" className="text-muted-foreground hover:text-foreground px-3 py-2">
               Sign in
             </Link>
-            <TryDemoButton size="sm" variant="outline" className="hidden sm:inline-flex" />
             <Button asChild size="sm">
               <Link href="/signup">Get started</Link>
             </Button>
@@ -154,11 +151,7 @@ export default function Home() {
                     Get started free <ArrowRight className="ml-1 h-4 w-4" />
                   </Link>
                 </Button>
-                <TryDemoButton size="lg" variant="outline" />
               </div>
-              <p className="text-muted-foreground mt-3 text-xs">
-                Try demo signs you in as a guest to a workspace full of sample feedback.
-              </p>
               <ul className="text-muted-foreground mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                 {["Set up in under a minute", "No widget to install", "Sign up with Google or email"].map(
                   (t) => (
@@ -259,7 +252,7 @@ export default function Home() {
               stops answering &ldquo;any update on this?&rdquo;
             </p>
             <Button asChild variant="outline" className="mt-6">
-              <Link href={`${DEMO_BOARD}/roadmap`}>
+              <Link href={`${LIVE_DEMO_URL}/b/planhive/roadmap`}>
                 View an example roadmap <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
@@ -301,11 +294,6 @@ export default function Home() {
                   Get started free <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
-              <TryDemoButton
-                size="lg"
-                variant="outline"
-                className="border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground bg-transparent"
-              />
             </div>
           </div>
         </section>
@@ -317,7 +305,7 @@ export default function Home() {
           <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <a href="#features" className="hover:text-foreground">Features</a>
             <a href="#how-it-works" className="hover:text-foreground">How it works</a>
-            <Link href={DEMO_BOARD} className="hover:text-foreground">Live demo</Link>
+            <Link href={LIVE_DEMO_URL} className="hover:text-foreground">Live demo</Link>
             <Link href="/login" className="hover:text-foreground">Sign in</Link>
             <Link href="/signup" className="hover:text-foreground">Get started</Link>
           </nav>
